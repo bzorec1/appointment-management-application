@@ -50,11 +50,10 @@ for (int run = 1; run <= iterations; run++)
 
     var req = new
     {
-        resourceId = 1,
-        durationMin = 20,
-        earliest = from.AddHours(9),
-        latest = from.AddHours(18),
-        maxResults = 3
+        targetDate = from.DateTime,
+        timePreference = 0, // Morning
+        requestedBy = 0,    // Client
+        serviceId = "haircut"
     };
 
     sw.Restart();

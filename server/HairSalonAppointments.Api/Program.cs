@@ -34,6 +34,7 @@ public static class Program
         builder.Services.AddTransient<IEndpointDefinition, AppointmentEndpointDefinition>();
         builder.Services.AddTransient<IEndpointDefinition, SuggestionsEndpointDefinition>();
         builder.Services.AddTransient<IEndpointDefinition, ServicesEndpointDefinition>();
+        builder.Services.AddTransient<IEndpointDefinition, ProvidersEndpointDefinition>();
 
         builder.Services.AddMemoryCache();
         builder.Services.AddOpenApi();
