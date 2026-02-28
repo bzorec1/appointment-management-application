@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="sl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>HairSalon – Rezervacija</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-icon">✂</div>
+      <h1>Frizerski salon</h1>
+      <p class="sub">Rezervacijski sistem</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <section class="card step">
+      <h2>Podatki o stranki</h2>
+      <div class="grid">
+        <label>Ime
+          <input id="name" placeholder="Ana Novak" />
+        </label>
+        <label>Telefon
+          <input id="phone" placeholder="+386 40 123 456" />
+        </label>
+        <label>Spol
+          <select id="gender">
+            <option value="woman">Ženska</option>
+            <option value="man">Moški</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <section class="card step">
+      <h2>Storitev in frizer</h2>
+      <div class="grid">
+        <label>Storitev
+          <select id="service">
+            <option value="haircut">Striženje (30 min)</option>
+            <option value="haircut-wash">Striženje + pranje (45 min)</option>
+            <option value="color">Barvanje (60 min)</option>
+            <option value="highlights">Prameni (75 min)</option>
+            <option value="beard">Brada (15 min)</option>
+            <option value="blowdry">Frizura (20 min)</option>
+          </select>
+        </label>
+        <label>Frizer
+          <select id="stylist">
+            <option value="">Kdorkoli</option>
+            <option value="1">Ana</option>
+            <option value="2">Tina</option>
+          </select>
+        </label>
+        <label>Datum
+          <input type="date" id="bookDate" />
+        </label>
+        <label>Željeni čas <small>(neobvezno)</small>
+          <input type="time" id="preferredTime" />
+        </label>
+      </div>
+      <div class="action-row">
+        <button id="btnFindSlots" type="button" class="primary">Poišči proste termine</button>
+        <button id="btnClear" type="button" class="secondary">Počisti</button>
+      </div>
+    </section>
+
+    <section id="slotsSection" class="card step hidden">
+      <h2>Izberi termin</h2>
+      <div id="slotsContainer" class="slots-grid"></div>
+      <p id="noSlots" class="hidden hint-warn">Ni prostih terminov za izbrani dan.</p>
+      <div id="altDates" class="hidden alt-dates"></div>
+    </section>
+
+    <section id="confirmSection" class="card step hidden">
+      <h2>Potrditev</h2>
+      <div id="confirmDetails"></div>
+      <div class="confirm-actions">
+        <button id="btnConfirm" type="button" class="primary">✓ Potrdi rezervacijo</button>
+        <button id="btnCancel" type="button" class="secondary">Prekliči</button>
+      </div>
+    </section>
+
+    <section id="out" class="card hidden"></section>
+
+    <section class="card settings-card">
+      <details>
+        <summary>⚙ Nastavitve</summary>
+        <div class="cfg">
+          <label class="inline"><input type="checkbox" id="mockMode" checked /> Mock način (brez strežnika)</label>
+          <label>API Base URL
+            <input id="baseUrl" placeholder="http://localhost:5000 ali prazno za Docker" />
+          </label>
+          <p class="hint">Pusti prazno če teče v Dockerju.</p>
+        </div>
+      </details>
+    </section>
+
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+
+</html>

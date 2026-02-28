@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # .NET API Server
+  api:
+    build:
+      context: ./server
+      dockerfile: HairSalonAppointments.Api/Dockerfile
+    container_name: hairsalon-api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__sqlite=Data Source=/app/data/hair.db
+      - AllowedHosts=*
+      - Cors__AllowedOrigins__0=http://localhost:3000
+      - Cors__AllowedOrigins__1=http://localhost
+    volumes:
+      - api-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/v1/appointments?from=2024-01-01&to=2024-01-02&api-version=1.0"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Web Client (nginx)
+  web:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: hairsalon-web
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  api-data:
+    driver: local

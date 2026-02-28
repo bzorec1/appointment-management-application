@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\HairSalonAppointments.Abstractions\HairSalonAppointments.Abstractions.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.3" />
+      <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.3" />
+      <PackageReference Include="Google.Apis.Calendar.v3" Version="1.68.0.3592" />
+      <PackageReference Include="Microsoft.Graph" Version="5.68.0" />
+      <PackageReference Include="Azure.Identity" Version="1.13.2" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,91 @@
+### General ###
+*.log
+*.tmp
+*.swp
+*.DS_Store
+*.idea/
+*.vscode/
+Thumbs.db
+
+### .NET / Visual Studio ###
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+[Tt]est[Rr]esult*/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vs/
+_ReSharper*/
+*.ncrunch*
+*.VisualState.xml
+TestResult.xml
+
+### Rider ###
+.idea/
+*.sln.iml
+
+### NuGet ###
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+### Coverage ###
+*.coverage
+*.coveragexml
+*.dotCover
+
+### Android / Kotlin ###
+*.apk
+*.ap_
+*.dex
+*.class
+*.iml
+.gradle/
+local.properties
+.gradle/
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Android Studio generated
+.idea/caches
+.idea/libraries
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.gradle/
+*.hprof
+
+### Node / Web (React or JS demo) ###
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
+package-lock.json
+dist/
+build/
+.cache/
+.next/
+out/
+*.tsbuildinfo
+
+### Web (plain HTML demo) ###
+# keep HTML, CSS, JS, ignore caches
+*.cache
+*.tmp
+.DS_Store
+
+### Others ###
+*.bak
+*.old
+
+### Office lock files ###
+~$*
+/server/HairSalonAppointments.Api/*.db
