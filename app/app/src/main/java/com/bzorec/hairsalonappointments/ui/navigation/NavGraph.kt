@@ -1,5 +1,7 @@
 package com.bzorec.hairsalonappointments.ui.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -26,11 +28,16 @@ sealed class Screen(val route: String) {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val showBottomBar = currentRoute in setOf(Screen.Today.route, Screen.AllAppointments.route, Screen.Profile.route)
+    val showBottomBar = currentRoute in setOf(
+        Screen.Today.route,
+        Screen.AllAppointments.route,
+        Screen.Profile.route
+    )
 
     Scaffold(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -82,13 +89,25 @@ fun NavGraph(navController: NavHostController) {
             composable(Screen.Today.route) {
                 TodayScreen(
                     onNavigateToNew = { navController.navigate(Screen.NewAppointment.route) },
-                    onNavigateToDetail = { id -> navController.navigate(Screen.AppointmentDetail.createRoute(id)) }
+                    onNavigateToDetail = { id ->
+                        navController.navigate(
+                            Screen.AppointmentDetail.createRoute(
+                                id
+                            )
+                        )
+                    }
                 )
             }
 
             composable(Screen.AllAppointments.route) {
                 AllAppointmentsScreen(
-                    onNavigateToDetail = { id -> navController.navigate(Screen.AppointmentDetail.createRoute(id)) }
+                    onNavigateToDetail = { id ->
+                        navController.navigate(
+                            Screen.AppointmentDetail.createRoute(
+                                id
+                            )
+                        )
+                    }
                 )
             }
 
@@ -103,7 +122,8 @@ fun NavGraph(navController: NavHostController) {
             }
 
             composable(Screen.AppointmentDetail.route) { backStackEntry ->
-                val id = backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: return@composable
+                val id =
+                    backStackEntry.arguments?.getString("id")?.toIntOrNull() ?: return@composable
                 AppointmentDetailScreen(
                     appointmentId = id,
                     onNavigateBack = { navController.popBackStack() }

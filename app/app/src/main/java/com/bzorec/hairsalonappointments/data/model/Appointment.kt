@@ -1,7 +1,5 @@
 package com.bzorec.hairsalonappointments.data.model
 
-import com.google.gson.annotations.SerializedName
-
 data class AppointmentDto(
     val id: Int,
     val title: String,
@@ -29,21 +27,7 @@ data class NewAppointment(
     val customerName: String
 )
 
-data class SuggestionRequest(
-    val service: String,
-    val durationMin: Int,
-    val window: TimeWindow,
-    val preferredStylist: Int? = null
-)
-
 data class TimeWindow(
     val from: String,
     val to: String
-)
-
-data class SuggestionSlot(
-    val start: String,
-    val end: String,
-    val resourceId: Int,
-    val resourceName: String
 )

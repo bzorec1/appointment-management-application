@@ -1,5 +1,7 @@
 package com.bzorec.hairsalonappointments.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -30,27 +32,44 @@ data class AllAppointmentsUiState(
     val isLoading: Boolean = false,
     val error: String? = null
 ) {
-    val upcoming: List<AppointmentDto> get() = appointments.filter { it.status != "Fulfilled" && !isInPast(it.end) }
-    val done: List<AppointmentDto> get() = appointments.filter { it.status == "Fulfilled" || isInPast(it.end) }
+    val upcoming: List<AppointmentDto>
+        @RequiresApi(Build.VERSION_CODES.O)
+        get() = appointments.filter {
+            it.status != "Fulfilled" && !isInPast(
+                it.end
+            )
+        }
+    val done: List<AppointmentDto>
+        @RequiresApi(Build.VERSION_CODES.O)
+        get() = appointments.filter {
+            it.status == "Fulfilled" || isInPast(
+                it.end
+            )
+        }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 class AllAppointmentsViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(AllAppointmentsUiState())
     val uiState: StateFlow<AllAppointmentsUiState> = _uiState
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private val isoFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
-    init { load() }
+    init {
+        load()
+    }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun load() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, error = null)
             try {
-                val zone  = ZoneId.systemDefault()
+                val zone = ZoneId.systemDefault()
                 val today = LocalDate.now()
-                val from  = today.minusDays(7).atStartOfDay(zone).format(isoFormatter)
-                val to    = today.plusDays(30).atStartOfDay(zone).format(isoFormatter)
+                val from = today.minusDays(7).atStartOfDay(zone).format(isoFormatter)
+                val to = today.plusDays(30).atStartOfDay(zone).format(isoFormatter)
 
                 val response = ApiClient.apiService.getAppointments(from, to)
 
@@ -75,6 +94,7 @@ class AllAppointmentsViewModel : ViewModel() {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AllAppointmentsScreen(
@@ -97,7 +117,9 @@ fun AllAppointmentsScreen(
     ) { padding ->
         when {
             uiState.isLoading -> {
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
                         color = MaterialTheme.colorScheme.primary
@@ -106,7 +128,9 @@ fun AllAppointmentsScreen(
             }
 
             uiState.error != null -> {
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -128,7 +152,9 @@ fun AllAppointmentsScreen(
             }
 
             uiState.appointments.isEmpty() -> {
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)

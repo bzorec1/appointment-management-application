@@ -24,10 +24,4 @@ interface ApiService {
         @Path("id") id: Int,
         @Query("api-version") apiVersion: String = "1.0"
     ): Response<AppointmentDto>
-
-    @POST("suggestions")
-    suspend fun getSuggestions(
-        @Body request: SuggestionRequest,
-        @Query("api-version") apiVersion: String = "1.0"
-    ): Response<List<SuggestionSlot>>
 }

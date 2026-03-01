@@ -1,14 +1,16 @@
 package com.bzorec.hairsalonappointments.ui.screens
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodayScreen(
@@ -65,14 +68,26 @@ fun TodayScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.loadAppointmentsForDate(uiState.selectedDate.minusDays(1)) }) {
-                        Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Prejšnji dan")
+                    IconButton(onClick = {
+                        viewModel.loadAppointmentsForDate(
+                            uiState.selectedDate.minusDays(
+                                1
+                            )
+                        )
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "Prejšnji dan")
                     }
                     IconButton(onClick = { viewModel.loadTodayAppointments() }) {
                         Icon(Icons.Default.Refresh, contentDescription = "Danes")
                     }
-                    IconButton(onClick = { viewModel.loadAppointmentsForDate(uiState.selectedDate.plusDays(1)) }) {
-                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Naslednji dan")
+                    IconButton(onClick = {
+                        viewModel.loadAppointmentsForDate(
+                            uiState.selectedDate.plusDays(
+                                1
+                            )
+                        )
+                    }) {
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "Naslednji dan")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -96,7 +111,9 @@ fun TodayScreen(
     ) { padding ->
         when {
             uiState.isLoading && uiState.appointments.isEmpty() -> {
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
                         color = MaterialTheme.colorScheme.primary
@@ -105,7 +122,9 @@ fun TodayScreen(
             }
 
             uiState.error != null -> {
-                Box(Modifier.fillMaxSize().padding(padding)) {
+                Box(Modifier
+                    .fillMaxSize()
+                    .padding(padding)) {
                     Column(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -281,17 +300,18 @@ fun SectionHeader(title: String, count: Int) {
 }
 
 private fun stylistColor(resourceId: Int): Color = when (resourceId) {
-    1    -> StylistAnaTeal
-    2    -> StylistTinaAmber
+    1 -> StylistAnaTeal
+    2 -> StylistTinaAmber
     else -> StylistDefaultGrey
 }
 
 private fun stylistColorContainer(resourceId: Int): Color = when (resourceId) {
-    1    -> StylistAnaTealContainer
-    2    -> StylistTinaAmberContainer
+    1 -> StylistAnaTealContainer
+    2 -> StylistTinaAmberContainer
     else -> StylistDefaultGreyContainer
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppointmentCard(
     appointment: AppointmentDto,
@@ -300,7 +320,7 @@ fun AppointmentCard(
 ) {
     val isFulfilled = appointment.status == "Fulfilled" || isInPast(appointment.end)
     val startTime = parseTime(appointment.start)
-    val endTime   = parseTime(appointment.end)
+    val endTime = parseTime(appointment.end)
 
     val accentColor = stylistColor(appointment.resourceId)
         .let { if (isFulfilled) it.copy(alpha = 0.4f) else it }
@@ -358,7 +378,7 @@ fun AppointmentCard(
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = if (isFulfilled) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                            else MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     appointment.service,

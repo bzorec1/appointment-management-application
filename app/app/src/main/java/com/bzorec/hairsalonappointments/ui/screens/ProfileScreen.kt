@@ -118,7 +118,7 @@ fun ProfileScreen() {
                                 style = MaterialTheme.typography.titleLarge,
                                 fontWeight = FontWeight.Bold,
                                 color = if (isSelected) Color.White
-                                        else MaterialTheme.colorScheme.onSurfaceVariant
+                                else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
 

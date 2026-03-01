@@ -1,7 +1,9 @@
 package com.bzorec.hairsalonappointments.ui.screens
 
 import android.content.Intent
+import android.os.Build
 import android.provider.CalendarContract
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -25,6 +27,7 @@ import com.bzorec.hairsalonappointments.ui.util.parseDate
 import com.bzorec.hairsalonappointments.ui.util.parseTime
 import java.time.OffsetDateTime
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppointmentDetailScreen(
@@ -104,6 +107,7 @@ fun AppointmentDetailScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 private fun AppointmentDetailContent(
     appointment: AppointmentDto,
@@ -111,12 +115,20 @@ private fun AppointmentDetailContent(
 ) {
     val context = LocalContext.current
 
-    val startDt = try { OffsetDateTime.parse(appointment.start) } catch (_: Exception) { null }
-    val endDt   = try { OffsetDateTime.parse(appointment.end)   } catch (_: Exception) { null }
+    val startDt = try {
+        OffsetDateTime.parse(appointment.start)
+    } catch (_: Exception) {
+        null
+    }
+    val endDt = try {
+        OffsetDateTime.parse(appointment.end)
+    } catch (_: Exception) {
+        null
+    }
 
-    val dateStr  = parseDate(appointment.start)
+    val dateStr = parseDate(appointment.start)
     val startStr = parseTime(appointment.start)
-    val endStr   = parseTime(appointment.end)
+    val endStr = parseTime(appointment.end)
 
     Column(
         modifier = modifier
@@ -154,14 +166,23 @@ private fun AppointmentDetailContent(
         ElevatedCard(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.padding(4.dp)) {
                 DetailRow(label = "Storitev", value = appointment.service)
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    thickness = 0.5.dp
+                )
                 if (appointment.resourceName != null) {
                     DetailRow(label = "Frizer", value = appointment.resourceName)
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp
+                    )
                 }
                 DetailRow(label = "Stranka", value = appointment.customerName ?: "–")
                 if (appointment.phone.isNotBlank()) {
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
+                    HorizontalDivider(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        thickness = 0.5.dp
+                    )
                     DetailRow(label = "Telefon", value = appointment.phone)
                 }
             }
@@ -169,15 +190,26 @@ private fun AppointmentDetailContent(
 
         Button(
             onClick = {
-                val intent = Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply {
-                    putExtra(CalendarContract.Events.TITLE, appointment.title)
-                    putExtra(
-                        CalendarContract.Events.DESCRIPTION,
-                        "Storitev: ${appointment.service}\nStranka: ${appointment.customerName}\nTel: ${appointment.phone}"
-                    )
-                    startDt?.let { putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, it.toInstant().toEpochMilli()) }
-                    endDt?.let   { putExtra(CalendarContract.EXTRA_EVENT_END_TIME,   it.toInstant().toEpochMilli()) }
-                }
+                val intent =
+                    Intent(Intent.ACTION_INSERT, CalendarContract.Events.CONTENT_URI).apply {
+                        putExtra(CalendarContract.Events.TITLE, appointment.title)
+                        putExtra(
+                            CalendarContract.Events.DESCRIPTION,
+                            "Storitev: ${appointment.service}\nStranka: ${appointment.customerName}\nTel: ${appointment.phone}"
+                        )
+                        startDt?.let {
+                            putExtra(
+                                CalendarContract.EXTRA_EVENT_BEGIN_TIME,
+                                it.toInstant().toEpochMilli()
+                            )
+                        }
+                        endDt?.let {
+                            putExtra(
+                                CalendarContract.EXTRA_EVENT_END_TIME,
+                                it.toInstant().toEpochMilli()
+                            )
+                        }
+                    }
                 context.startActivity(intent)
             },
             modifier = Modifier
@@ -185,7 +217,11 @@ private fun AppointmentDetailContent(
                 .height(52.dp),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(20.dp))
+            Icon(
+                Icons.Default.DateRange,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
             Spacer(Modifier.width(8.dp))
             Text("Dodaj v koledar", fontWeight = FontWeight.SemiBold)
         }
@@ -241,7 +277,12 @@ private fun SmsBubble(text: String) {
         }
 
         Surface(
-            shape = RoundedCornerShape(topStart = 18.dp, topEnd = 18.dp, bottomEnd = 4.dp, bottomStart = 18.dp),
+            shape = RoundedCornerShape(
+                topStart = 18.dp,
+                topEnd = 18.dp,
+                bottomEnd = 4.dp,
+                bottomStart = 18.dp
+            ),
             color = MaterialTheme.colorScheme.surfaceVariant,
             modifier = Modifier.widthIn(max = 340.dp)
         ) {
