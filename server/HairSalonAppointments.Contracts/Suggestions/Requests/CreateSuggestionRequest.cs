@@ -1,9 +1,6 @@
-﻿using HairSalonAppointments.Api.Suggestions.Enums;
-using HairSalonAppointments.Contracts.Suggestions;
+﻿namespace HairSalonAppointments.Contracts.Suggestions.Requests;
 
-namespace HairSalonAppointments.Api.Suggestions.Requests;
-
-public sealed class CreateSuggestionRequest
+public sealed record CreateSuggestionRequest
 {
     public DateTime? TargetDate { get; init; }
 

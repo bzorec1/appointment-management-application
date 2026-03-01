@@ -8,32 +8,34 @@ using Microsoft.Extensions.Options;
 
 namespace HairSalonAppointments.Providers.CalDav.Providers;
 
-public sealed class CalDavProvider : ICalendarProvider
+public sealed class CalDavProvider(
+    IHttpClientFactory httpClientFactory,
+    IOptions<CalDavOptions> opt)
+    : ICalendarProvider
 {
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly CalDavOptions _opt;
-    public string Key => "caldav";
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly CalDavOptions _opt = opt.Value;
 
-    public CalDavProvider(IHttpClientFactory httpClientFactory, IOptions<CalDavOptions> opt)
-    {
-        _httpClientFactory = httpClientFactory;
-        _opt = opt.Value;
-    }
+    public string Key => "caldav";
 
     private HttpClient CreateClient()
     {
         var client = _httpClientFactory.CreateClient("CalDav");
-        if (!string.IsNullOrWhiteSpace(_opt.Username))
+        if (string.IsNullOrWhiteSpace(_opt.Username))
         {
-            var bytes = Encoding.ASCII.GetBytes($"{_opt.Username}:{_opt.Password}");
-            client.DefaultRequestHeaders.Authorization =
-                new AuthenticationHeaderValue("Basic", Convert.ToBase64String(bytes));
+            return client;
         }
+
+        var bytes = Encoding.ASCII.GetBytes($"{_opt.Username}:{_opt.Password}");
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Basic", Convert.ToBase64String(bytes));
 
         return client;
     }
 
-    public async Task<string> CreateAsync(CalendarEventDto @event, CancellationToken cancellationToken = default)
+    public async Task<string> CreateAsync(
+        CalendarEventDto @event,
+        CancellationToken cancellationToken = default)
     {
         var uid = Guid.NewGuid().ToString("N");
 
@@ -44,8 +46,8 @@ public sealed class CalDavProvider : ICalendarProvider
                    BEGIN:VEVENT
                    UID:{uid}
                    SUMMARY:{@event.Title}
-                   DTSTART:{Dt(@event.Start)}
-                   DTEND:{Dt(@event.End)}
+                   DTSTART:{ConvertToUtcString(@event.Start)}
+                   DTEND:{ConvertToUtcString(@event.End)}
                    END:VEVENT
                    END:VCALENDAR
                    """;
@@ -60,22 +62,22 @@ public sealed class CalDavProvider : ICalendarProvider
         using var resp = await client.SendAsync(req, cancellationToken);
         resp.EnsureSuccessStatusCode();
         return uid;
-
-        string Dt(DateTimeOffset dto) => dto.UtcDateTime.ToString("yyyyMMdd'T'HHmmss'Z'");
     }
 
-    public async Task<IReadOnlyList<CalendarEventDto>> ListAsync(DateTimeOffset from, DateTimeOffset to,
+    string ConvertToUtcString(DateTimeOffset dto) => dto.UtcDateTime.ToString("yyyyMMdd'T'HHmmss'Z'");
+
+    public async Task<IReadOnlyList<CalendarEventDto>> ListAsync(
+        DateTimeOffset from,
+        DateTimeOffset to,
         CancellationToken cancellationToken = default)
     {
-        string Dt(DateTimeOffset dto) => dto.UtcDateTime.ToString("yyyyMMdd'T'HHmmss'Z'");
-
         var reportXml = $"""
                          <c:calendar-query xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav">
                            <d:prop><c:calendar-data/></d:prop>
                            <c:filter>
                              <c:comp-filter name="VCALENDAR">
                                <c:comp-filter name="VEVENT">
-                                 <c:time-range start="{Dt(from)}" end="{Dt(to)}"/>
+                                 <c:time-range start="{ConvertToUtcString(from)}" end="{ConvertToUtcString(to)}"/>
                                </c:comp-filter>
                              </c:comp-filter>
                            </c:filter>
@@ -90,7 +92,9 @@ public sealed class CalDavProvider : ICalendarProvider
 
         using var client = CreateClient();
         using var resp = await client.SendAsync(req, cancellationToken);
+
         resp.EnsureSuccessStatusCode();
+
         var xml = await resp.Content.ReadAsStringAsync(cancellationToken);
 
         var doc = XDocument.Parse(xml);
@@ -110,7 +114,8 @@ public sealed class CalDavProvider : ICalendarProvider
             var ics = calData.Value;
 
             string? uid = null, summary = null, dtstart = null, dtend = null;
-            foreach (var ln in ics.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            foreach (var ln in ics.Split('\n',
+                         StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
             {
                 if (ln.StartsWith("UID:"))
                 {

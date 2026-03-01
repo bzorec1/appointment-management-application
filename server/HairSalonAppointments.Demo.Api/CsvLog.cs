@@ -4,7 +4,13 @@ namespace HairSalonAppointments.Demo.Api;
 
 internal static class CsvLog
 {
-    public static void Append(string file, string provider, string op, long ms, int status, bool success,
+    public static void Append(
+        string file,
+        string provider,
+        string op,
+        long ms,
+        int status,
+        bool success,
         string? notes = null)
     {
         Directory.CreateDirectory("./docs/results");

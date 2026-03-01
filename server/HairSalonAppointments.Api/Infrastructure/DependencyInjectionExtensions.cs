@@ -36,9 +36,11 @@ internal static class DependencyInjectionExtensions
     {
         services.AddDbContext<ApplicationDbContext>(o =>
             o.UseSqlite(config.GetConnectionString("sqlite") ?? "Data Source=./hair.db"));
+
         services.AddScoped<IAppointmentDataStore, AppointmentDataDataStore>();
         services.AddScoped<ISchedulingService, SchedulingService>();
         services.AddScoped<ISuggestionCalculator, SuggestionCalculator>();
+
         services.AddSingleton<IServiceCatalog, ServiceCatalog>();
         services.AddSingleton<IDateTimeProvider, SystemDateTimeProvider>();
 
@@ -51,6 +53,7 @@ internal static class DependencyInjectionExtensions
         services.AddSingleton<GoogleCalendarProvider>();
         services.AddSingleton<CalDavProvider>();
         services.AddSingleton<GraphCalendarProvider>();
+
         services.AddSingleton<ICalendarProvider>(sp => sp.GetRequiredService<IcsProvider>());
         services.AddSingleton<ICalendarProvider>(sp => sp.GetRequiredService<GoogleCalendarProvider>());
         services.AddSingleton<ICalendarProvider>(sp => sp.GetRequiredService<CalDavProvider>());
@@ -80,9 +83,11 @@ internal static class DependencyInjectionExtensions
         this WebApplication app,
         RouteGroupBuilder root)
     {
-        IEnumerable<IEndpointDefinition> defs = app.Services.GetServices<IEndpointDefinition>();
-
-        foreach (IEndpointDefinition d in defs) d.DefineEndpoints(root);
+        var definitions = app.Services.GetServices<IEndpointDefinition>();
+        foreach (var definition in definitions)
+        {
+            definition.DefineEndpoints(root);
+        }
 
         return app;
     }
@@ -91,7 +96,7 @@ internal static class DependencyInjectionExtensions
     {
         var isDev = builder.Environment.IsDevelopment();
 
-        LoggerConfiguration config = new LoggerConfiguration()
+        var config = new LoggerConfiguration()
             .Filter.ByExcluding(Matching.WithProperty<string>("RequestPath",
                 p => p.StartsWith("/api/v1/health", StringComparison.OrdinalIgnoreCase)))
             .ReadFrom.Configuration(builder.Configuration)

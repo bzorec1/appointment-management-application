@@ -2,7 +2,8 @@
 
 namespace HairSalonAppointments.Providers.Core;
 
-public sealed class CalendarProviderResolver(IEnumerable<ICalendarProvider> providers) : ICalendarProviderResolver
+public sealed class CalendarProviderResolver(
+    IEnumerable<ICalendarProvider> providers) : ICalendarProviderResolver
 {
     private readonly Dictionary<string, ICalendarProvider> _byKey =
         providers.ToDictionary(p => p.Key, StringComparer.OrdinalIgnoreCase);

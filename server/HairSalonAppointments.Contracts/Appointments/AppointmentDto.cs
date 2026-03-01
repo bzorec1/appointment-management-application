@@ -1,6 +1,6 @@
 ﻿namespace HairSalonAppointments.Contracts.Appointments;
 
-public record AppointmentDto(
+public sealed record AppointmentDto(
     int Id,
     string Title,
     DateTimeOffset Start,

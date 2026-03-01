@@ -31,14 +31,11 @@ public class AppointmentEntity
 
     public byte[]? RowVersion { get; set; }
 
-    // Multi-phase service support: active phase is when stylist is working
     public DateTime? ActiveStart { get; set; }
     public DateTime? ActiveEnd { get; set; }
 
-    // Passive phase is when customer waits (e.g., dye processing) and stylist is free
     public DateTime? PassiveStart { get; set; }
     public DateTime? PassiveEnd { get; set; }
 
-    // If this appointment was nested during another appointment's passive phase
     public int? ParentAppointmentId { get; set; }
 }

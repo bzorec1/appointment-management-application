@@ -18,7 +18,6 @@ public class SchedulingServiceTests : IDisposable
     private readonly IAppointmentDataStore _dataStore;
     private readonly ICalendarProviderResolver _calendarResolver;
     private readonly IServiceCatalog _serviceCatalog;
-    private readonly ILogger<SchedulingService> _logger;
     private readonly SchedulingService _sut;
 
     public SchedulingServiceTests()
@@ -32,14 +31,15 @@ public class SchedulingServiceTests : IDisposable
         _dataStore = Substitute.For<IAppointmentDataStore>();
         _calendarResolver = Substitute.For<ICalendarProviderResolver>();
         _serviceCatalog = Substitute.For<IServiceCatalog>();
-        _logger = Substitute.For<ILogger<SchedulingService>>();
+        var logger = Substitute.For<ILogger<SchedulingService>>();
 
         var provider = Substitute.For<ICalendarProvider>();
-        provider.CreateAsync(Arg.Any<HairSalonAppointments.Contracts.Calendar.CalendarEventDto>(), Arg.Any<CancellationToken>())
+        provider.CreateAsync(Arg.Any<Contracts.Calendar.CalendarEventDto>(),
+                Arg.Any<CancellationToken>())
             .Returns("event-id");
         _calendarResolver.Get("google").Returns(provider);
 
-        _sut = new SchedulingService(_dataStore, _calendarResolver, _serviceCatalog, _dbContext, _logger);
+        _sut = new SchedulingService(_dataStore, _calendarResolver, _serviceCatalog, _dbContext, logger);
     }
 
     [Fact]
@@ -51,7 +51,8 @@ public class SchedulingServiceTests : IDisposable
             DateTimeOffset.UtcNow.AddHours(2),
             1, "555-1234", "haircut", "Ana");
 
-        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
+        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+                Arg.Any<CancellationToken>())
             .Returns(false);
 
         var savedDto = new AppointmentDto(1, appointment.Title, appointment.Start, appointment.End,
@@ -74,7 +75,8 @@ public class SchedulingServiceTests : IDisposable
             "Haircut", DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddHours(2),
             1, "555", "haircut", "Test");
 
-        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
+        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+                Arg.Any<CancellationToken>())
             .Returns(true);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.CreateAsync(appointment));
@@ -107,7 +109,8 @@ public class SchedulingServiceTests : IDisposable
             "Haircut", DateTimeOffset.UtcNow.AddHours(1), DateTimeOffset.UtcNow.AddHours(2),
             1, "555", "haircut", "Test");
 
-        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
+        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+                Arg.Any<CancellationToken>())
             .Returns(false);
 
         var savedDto = new AppointmentDto(1, "Haircut", appointment.Start, appointment.End,
@@ -116,7 +119,8 @@ public class SchedulingServiceTests : IDisposable
             .Returns(savedDto);
 
         var provider = Substitute.For<ICalendarProvider>();
-        provider.CreateAsync(Arg.Any<HairSalonAppointments.Contracts.Calendar.CalendarEventDto>(), Arg.Any<CancellationToken>())
+        provider.CreateAsync(Arg.Any<HairSalonAppointments.Contracts.Calendar.CalendarEventDto>(),
+                Arg.Any<CancellationToken>())
             .ThrowsAsync(new Exception("Google API down"));
         _calendarResolver.Get("google").Returns(provider);
 
@@ -185,7 +189,8 @@ public class SchedulingServiceTests : IDisposable
             .Returns(new HairSalonAppointments.Contracts.Services.ServiceDefinition(
                 "color", "Hair Coloring", TimeSpan.FromMinutes(20), TimeSpan.FromMinutes(40), true));
 
-        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(), Arg.Any<CancellationToken>())
+        _dataStore.OverlapsAsync(Arg.Any<int>(), Arg.Any<DateTimeOffset>(), Arg.Any<DateTimeOffset>(),
+                Arg.Any<CancellationToken>())
             .Returns(false);
 
         NewAppointment? captured = null;

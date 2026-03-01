@@ -1,6 +1,6 @@
 ﻿namespace HairSalonAppointments.Contracts.Calendar;
 
-public record CalendarEventDto(
+public sealed record CalendarEventDto(
     string? ProviderId,
     string Title,
     DateTimeOffset Start,

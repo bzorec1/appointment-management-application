@@ -2,10 +2,9 @@ using HairSalonAppointments.Abstractions;
 using HairSalonAppointments.Abstractions.Appointments;
 using HairSalonAppointments.Api.Services;
 using HairSalonAppointments.Api.Suggestions;
-using HairSalonAppointments.Api.Suggestions.Enums;
-using HairSalonAppointments.Api.Suggestions.Requests;
 using HairSalonAppointments.Contracts.Appointments;
 using HairSalonAppointments.Contracts.Suggestions;
+using HairSalonAppointments.Contracts.Suggestions.Requests;
 using NSubstitute;
 
 namespace HairSalonAppointments.Tests.Unit;
@@ -53,7 +52,7 @@ public class SuggestionCalculatorTests
             .Returns(new List<AppointmentDto>());
 
         _serviceCatalog.GetService("color")
-            .Returns(new HairSalonAppointments.Contracts.Services.ServiceDefinition(
+            .Returns(new Contracts.Services.ServiceDefinition(
                 "color", "Hair Coloring", TimeSpan.FromMinutes(20), TimeSpan.FromMinutes(40), true));
 
         var request = new CreateSuggestionRequest
@@ -86,13 +85,14 @@ public class SuggestionCalculatorTests
                 var day = from.UtcDateTime.Date;
                 var booked = new List<AppointmentDto>();
                 for (int hour = 9; hour < 18; hour++)
-                    for (int min = 0; min < 60; min += 15)
-                    {
-                        var s = new DateTimeOffset(day.Year, day.Month, day.Day, hour, min, 0, TimeSpan.Zero);
-                        booked.Add(new AppointmentDto(
-                            booked.Count + 1, "Test", s, s.AddMinutes(15),
-                            1, "Ana", "555", "haircut", "Test", s));
-                    }
+                for (int min = 0; min < 60; min += 15)
+                {
+                    var s = new DateTimeOffset(day.Year, day.Month, day.Day, hour, min, 0, TimeSpan.Zero);
+                    booked.Add(new AppointmentDto(
+                        booked.Count + 1, "Test", s, s.AddMinutes(15),
+                        1, "Ana", "555", "haircut", "Test", s));
+                }
+
                 return Task.FromResult<IReadOnlyList<AppointmentDto>>(booked);
             });
 

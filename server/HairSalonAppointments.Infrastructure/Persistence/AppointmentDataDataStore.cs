@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HairSalonAppointments.Infrastructure.Persistence;
 
-public class AppointmentDataDataStore(ApplicationDbContext context) : IAppointmentDataStore
+public class AppointmentDataDataStore(
+    ApplicationDbContext context) : IAppointmentDataStore
 {
     private readonly ApplicationDbContext _context = context;
 
@@ -15,7 +16,12 @@ public class AppointmentDataDataStore(ApplicationDbContext context) : IAppointme
         DateTimeOffset end,
         CancellationToken cancellationToken = default)
     {
-        return await OverlapsAsync(resourceId, start, end, excludeId: null, cancellationToken)
+        return await OverlapsAsync(
+                resourceId,
+                start,
+                end,
+                excludeId: null,
+                cancellationToken)
             .ConfigureAwait(false);
     }
 
@@ -103,7 +109,9 @@ public class AppointmentDataDataStore(ApplicationDbContext context) : IAppointme
             .ConfigureAwait(false);
 
         if (entity == null)
+        {
             return null;
+        }
 
         entity.Title = appointment.Title;
         entity.Start = appointment.Start.UtcDateTime;
@@ -131,7 +139,9 @@ public class AppointmentDataDataStore(ApplicationDbContext context) : IAppointme
             .ConfigureAwait(false);
 
         if (entity == null)
+        {
             return false;
+        }
 
         _context.Appointments.Remove(entity);
         await _context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
@@ -154,12 +164,34 @@ public class AppointmentDataDataStore(ApplicationDbContext context) : IAppointme
         var icsUrl = $"/api/v1/appointments/{a.Id}/calendar.ics";
 
         string? smsPreview = null;
-        if (!string.IsNullOrWhiteSpace(a.Phone))
+        if (string.IsNullOrWhiteSpace(a.Phone))
         {
-            var dateStr = a.Start.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
-            var timeStr = a.Start.ToString("HH:mm", CultureInfo.InvariantCulture);
-            smsPreview = $"Spoštovani {a.CustomerName}, vaš termin ({a.Service}) je potrjen za {dateStr} ob {timeStr}. Frizerski salon.";
+            return new AppointmentDto(
+                a.Id,
+                a.Title,
+                start,
+                end,
+                a.ResourceId,
+                a.ResourceName,
+                a.Phone,
+                a.Service,
+                a.CustomerName!,
+                new DateTimeOffset(a.CreatedAt, TimeSpan.Zero),
+                a.Status,
+                a.ActiveStart.HasValue ? new DateTimeOffset(a.ActiveStart.Value, TimeSpan.Zero) : null,
+                a.ActiveEnd.HasValue ? new DateTimeOffset(a.ActiveEnd.Value, TimeSpan.Zero) : null,
+                a.PassiveStart.HasValue ? new DateTimeOffset(a.PassiveStart.Value, TimeSpan.Zero) : null,
+                a.PassiveEnd.HasValue ? new DateTimeOffset(a.PassiveEnd.Value, TimeSpan.Zero) : null,
+                googleCalendarUrl,
+                icsUrl,
+                smsPreview
+            );
         }
+
+        var dateStr = a.Start.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
+        var timeStr = a.Start.ToString("HH:mm", CultureInfo.InvariantCulture);
+        smsPreview =
+            $"Spoštovani {a.CustomerName}, vaš termin ({a.Service}) je potrjen za {dateStr} ob {timeStr}. Frizerski salon.";
 
         return new AppointmentDto(
             a.Id,

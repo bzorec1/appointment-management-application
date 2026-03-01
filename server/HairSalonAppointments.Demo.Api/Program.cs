@@ -2,15 +2,23 @@ using System.Diagnostics;
 using System.Net.Http.Json;
 using HairSalonAppointments.Demo.Api;
 
-var baseUrl = Environment.GetEnvironmentVariable("API_BASE") ?? "http://localhost:8080";
-var iterations = int.TryParse(Environment.GetEnvironmentVariable("ITERATIONS"), out var i) ? i : 10;
+var baseUrl = Environment.GetEnvironmentVariable("API_BASE")
+              ?? "http://localhost:8080";
 
-var http = new HttpClient { BaseAddress = new Uri(baseUrl) };
+var iterations = int.TryParse(Environment.GetEnvironmentVariable("ITERATIONS"), out var i)
+    ? i
+    : 10;
+
+var http = new HttpClient
+{
+    BaseAddress = new Uri(baseUrl)
+};
+
 Console.WriteLine($"[API Demo] Base: {http.BaseAddress}, Iterations: {iterations}");
 
 var sw = Stopwatch.StartNew();
 
-for (int run = 1; run <= iterations; run++)
+for (var run = 1; run <= iterations; run++)
 {
     Console.WriteLine($"\n--- Run {run}/{iterations} ---");
 
@@ -34,7 +42,13 @@ for (int run = 1; run <= iterations; run++)
     sw.Stop();
 
     var ok = resp.IsSuccessStatusCode;
-    CsvLog.Append("api", "api", "create_appointment", sw.ElapsedMilliseconds, (int)resp.StatusCode, ok,
+    CsvLog.Append(
+        "api",
+        "api",
+        "create_appointment",
+        sw.ElapsedMilliseconds,
+        (int)resp.StatusCode,
+        ok,
         $"run_{run}");
     Console.WriteLine($"Create: {resp.StatusCode} ({sw.ElapsedMilliseconds}ms)");
 
@@ -44,15 +58,23 @@ for (int run = 1; run <= iterations; run++)
     var listResp = await http.GetAsync(listUrl);
     sw.Stop();
 
-    CsvLog.Append("api", "api", "list_appointments", sw.ElapsedMilliseconds, (int)listResp.StatusCode,
-        listResp.IsSuccessStatusCode, $"run_{run}");
+    CsvLog.Append(
+        "api",
+        "api",
+        "list_appointments",
+        sw.ElapsedMilliseconds,
+        (int)listResp.StatusCode,
+        listResp.IsSuccessStatusCode,
+        $"run_{run}");
     Console.WriteLine($"List: {listResp.StatusCode} ({sw.ElapsedMilliseconds}ms)");
 
+    const int morning = 0;
+    const int client = 0;
     var req = new
     {
         targetDate = from.DateTime,
-        timePreference = 0, // Morning
-        requestedBy = 0,    // Client
+        timePreference = morning,
+        requestedBy = client,
         serviceId = "haircut"
     };
 
@@ -60,8 +82,14 @@ for (int run = 1; run <= iterations; run++)
     var sugResp = await http.PostAsJsonAsync("/api/v1/suggestions?api-version=1.0", req);
     sw.Stop();
 
-    CsvLog.Append("api", "api", "suggestions", sw.ElapsedMilliseconds, (int)sugResp.StatusCode,
-        sugResp.IsSuccessStatusCode, $"run_{run}");
+    CsvLog.Append(
+        "api",
+        "api",
+        "suggestions",
+        sw.ElapsedMilliseconds,
+        (int)sugResp.StatusCode,
+        sugResp.IsSuccessStatusCode,
+        $"run_{run}");
     Console.WriteLine($"Suggestions: {sugResp.StatusCode} ({sw.ElapsedMilliseconds}ms)");
 }
 

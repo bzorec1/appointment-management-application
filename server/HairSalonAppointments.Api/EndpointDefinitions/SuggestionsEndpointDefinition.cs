@@ -1,8 +1,7 @@
 using HairSalonAppointments.Abstractions;
 using HairSalonAppointments.Api.Suggestions;
-using HairSalonAppointments.Api.Suggestions.Enums;
-using HairSalonAppointments.Api.Suggestions.Requests;
 using HairSalonAppointments.Contracts.Suggestions;
+using HairSalonAppointments.Contracts.Suggestions.Requests;
 using HairSalonAppointments.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +29,7 @@ public sealed class SuggestionsEndpointDefinition : IEndpointDefinition
             .AllowAnonymous();
     }
 
-    private async Task<IResult> CreateSuggestion(
+    private static async Task<IResult> CreateSuggestion(
         [FromBody] CreateSuggestionRequest request,
         [FromServices] ISuggestionCalculator calculator,
         [FromServices] IDateTimeProvider dateTimeProvider,
@@ -55,7 +54,6 @@ public sealed class SuggestionsEndpointDefinition : IEndpointDefinition
             return Results.BadRequest(suggestionResult.ErrorMessage ?? "No available slots found.");
         }
 
-        // Save the first (primary) slot as the suggestion entity for expiry tracking
         var primary = suggestionResult.Slots[0];
         var now = dateTimeProvider.Now;
         var entity = new SuggestionEntity
@@ -96,7 +94,7 @@ public sealed class SuggestionsEndpointDefinition : IEndpointDefinition
             });
     }
 
-    private async Task<IResult> GetSuggestions(
+    private static async Task<IResult> GetSuggestions(
         Guid suggestionId,
         [FromServices] IDateTimeProvider dateTimeProvider,
         [FromServices] ApplicationDbContext context,

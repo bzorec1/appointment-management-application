@@ -4,7 +4,8 @@ namespace HairSalonAppointments.Api.Infrastructure;
 
 internal static class JsonOptionsExtensions
 {
-    public static IServiceCollection AddHttpJsonOptions(this IServiceCollection services)
+    public static IServiceCollection AddHttpJsonOptions(
+        this IServiceCollection services)
     {
         services.ConfigureHttpJsonOptions(o =>
         {

@@ -4,7 +4,8 @@ namespace HairSalonAppointments.Api.Infrastructure;
 
 internal static class VersioningExtensions
 {
-    public static IServiceCollection AddApiVersioningAndExplorer(this IServiceCollection services)
+    public static IServiceCollection AddApiVersioningAndExplorer(
+        this IServiceCollection services)
     {
         services
             .AddApiVersioning(o =>

@@ -5,7 +5,9 @@ namespace HairSalonAppointments.Api.EndpointDefinitions;
 
 public sealed class ProvidersEndpointDefinition : IEndpointDefinition
 {
-    public void DefineServices(IServiceCollection services) { }
+    public void DefineServices(IServiceCollection services)
+    {
+    }
 
     public void DefineEndpoints(RouteGroupBuilder api)
     {
@@ -15,17 +17,20 @@ public sealed class ProvidersEndpointDefinition : IEndpointDefinition
                 string key,
                 CalendarEventDto dto,
                 ICalendarProviderResolver resolver,
-                CancellationToken ct) =>
+                CancellationToken cancellationToken) =>
             {
                 try
                 {
                     var provider = resolver.Get(key);
-                    var id = await provider.CreateAsync(dto, ct);
+                    var id = await provider.CreateAsync(dto, cancellationToken);
                     return Results.Created($"/api/v1/providers/{key}/events/{id}", new { id });
                 }
                 catch (KeyNotFoundException ex)
                 {
-                    return Results.NotFound(new { message = ex.Message });
+                    return Results.NotFound(new
+                    {
+                        message = ex.Message
+                    });
                 }
                 catch (Exception ex)
                 {
@@ -39,17 +44,20 @@ public sealed class ProvidersEndpointDefinition : IEndpointDefinition
                 DateTimeOffset from,
                 DateTimeOffset to,
                 ICalendarProviderResolver resolver,
-                CancellationToken ct) =>
+                CancellationToken cancellationToken) =>
             {
                 try
                 {
                     var provider = resolver.Get(key);
-                    var events = await provider.ListAsync(from, to, ct);
+                    var events = await provider.ListAsync(from, to, cancellationToken);
                     return Results.Ok(events);
                 }
                 catch (KeyNotFoundException ex)
                 {
-                    return Results.NotFound(new { message = ex.Message });
+                    return Results.NotFound(new
+                    {
+                        message = ex.Message
+                    });
                 }
                 catch (Exception ex)
                 {

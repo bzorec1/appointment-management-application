@@ -1,6 +1,6 @@
 ﻿namespace HairSalonAppointments.Api.Models;
 
-public sealed class WorkingHours
+public sealed record WorkingHours
 {
     public TimeSpan Start { get; init; }
 

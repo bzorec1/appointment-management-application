@@ -8,16 +8,11 @@ using Microsoft.Graph.Models;
 
 namespace HairSalonAppointments.Providers.Graph.Providers;
 
-public sealed class GraphCalendarProvider : ICalendarProvider
+public sealed class GraphCalendarProvider(IOptions<GraphOptions> options) : ICalendarProvider
 {
-    private readonly GraphOptions _options;
+    private readonly GraphOptions _options = options.Value;
 
     public string Key => "graph";
-
-    public GraphCalendarProvider(IOptions<GraphOptions> options)
-    {
-        _options = options.Value;
-    }
 
     private GraphServiceClient CreateClient()
     {
@@ -73,18 +68,17 @@ public sealed class GraphCalendarProvider : ICalendarProvider
             config.QueryParameters.EndDateTime = to.ToString("yyyy-MM-ddTHH:mm:ss");
         }, cancellationToken: cancellationToken);
 
-        if (result?.Value is null)
-            return [];
-
-        return result.Value
-            .Select(e => new CalendarEventDto(
-                e.Id,
-                e.Subject ?? "Untitled",
-                e.Start is not null ? DateTimeOffset.Parse(e.Start.DateTime!) : DateTimeOffset.UtcNow,
-                e.End is not null ? DateTimeOffset.Parse(e.End.DateTime!) : DateTimeOffset.UtcNow,
-                e.Start?.TimeZone ?? "UTC",
-                e.Body?.Content
-            ))
-            .ToList();
+        return result?.Value is null
+            ? []
+            : result.Value
+                .Select(e => new CalendarEventDto(
+                    e.Id,
+                    e.Subject ?? "Untitled",
+                    e.Start is not null ? DateTimeOffset.Parse(e.Start.DateTime!) : DateTimeOffset.UtcNow,
+                    e.End is not null ? DateTimeOffset.Parse(e.End.DateTime!) : DateTimeOffset.UtcNow,
+                    e.Start?.TimeZone ?? "UTC",
+                    e.Body?.Content
+                ))
+                .ToList();
     }
 }

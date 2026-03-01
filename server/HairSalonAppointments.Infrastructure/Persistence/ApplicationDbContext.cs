@@ -2,7 +2,8 @@
 
 namespace HairSalonAppointments.Infrastructure.Persistence;
 
-public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     public DbSet<AppointmentEntity> Appointments => Set<AppointmentEntity>();
     public DbSet<SuggestionEntity> Suggestions => Set<SuggestionEntity>();

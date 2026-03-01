@@ -4,9 +4,11 @@ namespace HairSalonAppointments.Api.Suggestions;
 
 public sealed class SuggestionResult
 {
-    public bool Success { get; init; }
-    public string? ErrorMessage { get; init; }
-    public IReadOnlyList<TimeSlot> Slots { get; init; } = Array.Empty<TimeSlot>();
+    public bool Success { get; private init; }
+
+    public string? ErrorMessage { get; private init; }
+
+    public IReadOnlyList<TimeSlot> Slots { get; private init; } = [];
 
     public static SuggestionResult Fail(string errorMessage)
         => new() { Success = false, ErrorMessage = errorMessage };

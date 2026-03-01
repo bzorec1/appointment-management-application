@@ -22,12 +22,19 @@ public sealed class ServicesEndpointDefinition : IEndpointDefinition
             .AllowAnonymous();
     }
 
-    private static IResult GetAllServices([FromServices] IServiceCatalog catalog)
-        => Results.Ok(catalog.GetAllServices());
+    private static IResult GetAllServices(
+        [FromServices] IServiceCatalog catalog)
+    {
+        return Results.Ok(catalog.GetAllServices());
+    }
 
-    private static IResult GetService(string serviceId, [FromServices] IServiceCatalog catalog)
+    private static IResult GetService(
+        string serviceId,
+        [FromServices] IServiceCatalog catalog)
     {
         var service = catalog.GetService(serviceId);
-        return service is null ? Results.NotFound() : Results.Ok(service);
+        return service is null
+            ? Results.NotFound()
+            : Results.Ok(service);
     }
 }

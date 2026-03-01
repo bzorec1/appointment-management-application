@@ -1,4 +1,4 @@
-﻿namespace HairSalonAppointments.Api.Suggestions.Enums;
+﻿namespace HairSalonAppointments.Contracts.Suggestions;
 
 public enum TimePreference
 {

@@ -9,6 +9,7 @@ namespace HairSalonAppointments.Providers.Ics.Providers;
 public sealed class IcsProvider : ICalendarProvider
 {
     private readonly IcsOptions _opt;
+
     public string Key => "ics";
 
     public IcsProvider(IOptions<IcsOptions> opt)

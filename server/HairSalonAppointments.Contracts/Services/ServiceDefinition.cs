@@ -1,6 +1,6 @@
 namespace HairSalonAppointments.Contracts.Services;
 
-public record ServiceDefinition(
+public sealed record ServiceDefinition(
     string Id,
     string Name,
     TimeSpan ActiveDuration,

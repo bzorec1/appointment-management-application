@@ -4,11 +4,10 @@ using HairSalonAppointments.Api.Services;
 using HairSalonAppointments.Contracts.Appointments;
 using HairSalonAppointments.Contracts.Calendar;
 using HairSalonAppointments.Infrastructure.Persistence;
-using Microsoft.Extensions.Logging;
 
 namespace HairSalonAppointments.Api.Scheduling;
 
-public sealed class SchedulingService(
+public sealed partial class SchedulingService(
     IAppointmentDataStore appointmentDataStore,
     ICalendarProviderResolver calendarResolver,
     IServiceCatalog serviceCatalog,
@@ -18,7 +17,8 @@ public sealed class SchedulingService(
     private const string GoogleProviderKey = "google";
     private readonly IAppointmentDataStore _appointmentDataStore = appointmentDataStore;
 
-    public async Task<AppointmentDto> CreateAsync(NewAppointment appointment,
+    public async Task<AppointmentDto> CreateAsync(
+        NewAppointment appointment,
         CancellationToken cancellationToken = default)
     {
         ValidateAppointment(appointment);
@@ -27,7 +27,10 @@ public sealed class SchedulingService(
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-        if (await _appointmentDataStore.OverlapsAsync(enriched.ResourceId, enriched.Start, enriched.End,
+        if (await _appointmentDataStore.OverlapsAsync(
+                enriched.ResourceId,
+                enriched.Start,
+                enriched.End,
                 cancellationToken))
         {
             throw new InvalidOperationException("Overlap for resource.");
@@ -42,7 +45,9 @@ public sealed class SchedulingService(
         return saved;
     }
 
-    public async Task<AppointmentDto?> UpdateAsync(int id, NewAppointment appointment,
+    public async Task<AppointmentDto?> UpdateAsync(
+        int id,
+        NewAppointment appointment,
         CancellationToken cancellationToken = default)
     {
         ValidateAppointment(appointment);
@@ -51,8 +56,12 @@ public sealed class SchedulingService(
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-        if (await _appointmentDataStore.OverlapsAsync(enriched.ResourceId, enriched.Start, enriched.End,
-                excludeId: id, cancellationToken))
+        if (await _appointmentDataStore.OverlapsAsync(
+                enriched.ResourceId,
+                enriched.Start,
+                enriched.End,
+                excludeId: id,
+                cancellationToken))
         {
             throw new InvalidOperationException("Overlap for resource.");
         }
@@ -62,12 +71,16 @@ public sealed class SchedulingService(
         await transaction.CommitAsync(cancellationToken);
 
         if (updated != null)
+        {
             await SyncToCalendarAsync(updated, cancellationToken);
+        }
 
         return updated;
     }
 
-    public async Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<bool> DeleteAsync(
+        int id,
+        CancellationToken cancellationToken = default)
     {
         return await _appointmentDataStore.DeleteAsync(id, cancellationToken);
     }
@@ -75,40 +88,61 @@ public sealed class SchedulingService(
     private static void ValidateAppointment(NewAppointment appointment)
     {
         if (string.IsNullOrWhiteSpace(appointment.Title))
+        {
             throw new ArgumentException("Title is required.", nameof(appointment.Title));
+        }
 
         if (appointment.End <= appointment.Start)
+        {
             throw new ArgumentException("End must be after Start.", nameof(appointment.End));
+        }
 
         if (appointment.ResourceId <= 0)
+        {
             throw new ArgumentException("ResourceId must be positive.", nameof(appointment.ResourceId));
+        }
     }
 
     private NewAppointment EnrichWithPhases(NewAppointment appointment)
     {
         if (string.IsNullOrEmpty(appointment.ServiceId))
-            return appointment with { ActiveStart = appointment.Start, ActiveEnd = appointment.End };
-
-        var service = serviceCatalog.GetService(appointment.ServiceId);
-        if (service == null)
-            return appointment with { ActiveStart = appointment.Start, ActiveEnd = appointment.End };
-
-        var activeEnd = appointment.Start + service.ActiveDuration;
-        if (service.PassiveDuration > TimeSpan.Zero)
         {
-            var passiveStart = activeEnd;
-            var passiveEnd = passiveStart + service.PassiveDuration;
             return appointment with
             {
-                End = passiveEnd,
                 ActiveStart = appointment.Start,
-                ActiveEnd = activeEnd,
-                PassiveStart = passiveStart,
-                PassiveEnd = passiveEnd
+                ActiveEnd = appointment.End
             };
         }
 
-        return appointment with { ActiveStart = appointment.Start, ActiveEnd = activeEnd };
+        var service = serviceCatalog.GetService(appointment.ServiceId);
+        if (service == null)
+        {
+            return appointment with
+            {
+                ActiveStart = appointment.Start,
+                ActiveEnd = appointment.End
+            };
+        }
+
+        var activeEnd = appointment.Start + service.ActiveDuration;
+        if (service.PassiveDuration <= TimeSpan.Zero)
+        {
+            return appointment with
+            {
+                ActiveStart = appointment.Start,
+                ActiveEnd = activeEnd
+            };
+        }
+
+        var passiveEnd = activeEnd + service.PassiveDuration;
+        return appointment with
+        {
+            End = passiveEnd,
+            ActiveStart = appointment.Start,
+            ActiveEnd = activeEnd,
+            PassiveStart = activeEnd,
+            PassiveEnd = passiveEnd
+        };
     }
 
     private static string? StylistColorId(int resourceId) => resourceId switch
@@ -118,7 +152,9 @@ public sealed class SchedulingService(
         _ => null
     };
 
-    private async Task SyncToCalendarAsync(AppointmentDto saved, CancellationToken cancellationToken)
+    private async Task SyncToCalendarAsync(
+        AppointmentDto saved,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -135,11 +171,21 @@ public sealed class SchedulingService(
             var provider = calendarResolver.Get(GoogleProviderKey);
             await provider.CreateAsync(calendarEvent, cancellationToken);
 
-            logger.LogInformation("Calendar event created for appointment {Id}", saved.Id);
+            LogCalendarEventCreatedForAppointmentId(saved.Id);
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Calendar sync failed for appointment {Id}. Appointment was saved locally.", saved.Id);
+            LogCalendarSyncFailedForAppointmentIdAppointmentWasSavedLocally(saved.Id, ex);
         }
     }
+
+    [LoggerMessage(LogLevel.Information, "Calendar event created for appointment {Id}")]
+    partial void LogCalendarEventCreatedForAppointmentId(int id);
+
+    [LoggerMessage(
+        LogLevel.Warning,
+        "Calendar sync failed for appointment {Id}. Appointment was saved locally.")]
+    partial void LogCalendarSyncFailedForAppointmentIdAppointmentWasSavedLocally(
+        int id,
+        Exception exception);
 }

@@ -1,6 +1,6 @@
 ﻿namespace HairSalonAppointments.Providers.Ics.Options;
 
-public sealed class IcsOptions
+public sealed record IcsOptions
 {
     public string Directory { get; set; } = "./docs/ics";
 

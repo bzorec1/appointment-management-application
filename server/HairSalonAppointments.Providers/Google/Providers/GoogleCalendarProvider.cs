@@ -9,16 +9,12 @@ using Microsoft.Extensions.Options;
 
 namespace HairSalonAppointments.Providers.Google.Providers;
 
-public sealed class GoogleCalendarProvider : ICalendarProvider
+public sealed class GoogleCalendarProvider(
+    IOptions<GoogleCalendarOptions> options) : ICalendarProvider
 {
-    private readonly GoogleCalendarOptions _options;
+    private readonly GoogleCalendarOptions _options = options.Value;
 
     public string Key => "google";
-
-    public GoogleCalendarProvider(IOptions<GoogleCalendarOptions> options)
-    {
-        _options = options.Value;
-    }
 
     private CalendarService CreateService()
     {
@@ -43,7 +39,9 @@ public sealed class GoogleCalendarProvider : ICalendarProvider
         });
     }
 
-    public async Task<string> CreateAsync(CalendarEventDto @event, CancellationToken cancellationToken = default)
+    public async Task<string> CreateAsync(
+        CalendarEventDto @event,
+        CancellationToken cancellationToken = default)
     {
         var service = CreateService();
 
@@ -84,18 +82,17 @@ public sealed class GoogleCalendarProvider : ICalendarProvider
 
         var response = await request.ExecuteAsync(cancellationToken);
 
-        if (response.Items == null)
-            return [];
-
-        return response.Items
-            .Select(e => new CalendarEventDto(
-                e.Id,
-                e.Summary ?? "Untitled",
-                e.Start.DateTimeDateTimeOffset ?? DateTimeOffset.Parse(e.Start.Date),
-                e.End.DateTimeDateTimeOffset ?? DateTimeOffset.Parse(e.End.Date),
-                e.Start.TimeZone ?? "UTC",
-                e.Description
-            ))
-            .ToList();
+        return response.Items == null
+            ? []
+            : response.Items
+                .Select(e => new CalendarEventDto(
+                    e.Id,
+                    e.Summary ?? "Untitled",
+                    e.Start.DateTimeDateTimeOffset ?? DateTimeOffset.Parse(e.Start.Date),
+                    e.End.DateTimeDateTimeOffset ?? DateTimeOffset.Parse(e.End.Date),
+                    e.Start.TimeZone ?? "UTC",
+                    e.Description
+                ))
+                .ToList();
     }
 }
